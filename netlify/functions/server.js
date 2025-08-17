@@ -1,20 +1,35 @@
-const { createServer } = require('@netlify/functions')
-const express = require('express')
-const serverless = require('serverless-http')
-const app = require('../server/index').app
+const { Handler } = require('@netlify/functions');
+const serverless = require('serverless-http');
+const express = require('express');
+const server = require('../../server');
 
-// This is the Express app that handles all routes
-exports.handler = createServer({
-  proxy: {
-    '/api': {
-      target: 'http://localhost:8888',
-      pathRewrite: { '^/api/': '/' },
-      changeOrigin: true,
-    },
-  },
-  request: (req, res, context) => {
-    // Handle the request with Express
-    const handler = serverless(app)
-    return handler(req, res, context)
+const handler = serverless(server);
+
+exports.handler = async (event, context) => {
+  // Handle API routes
+  if (event.path && event.path.startsWith('/api/')) {
+    return handler(event, context);
   }
-})
+  
+  // For all other routes, serve the SPA
+  return {
+    statusCode: 200,
+    headers: {
+      'Content-Type': 'text/html',
+    },
+    body: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Loading...</title>
+          <script>
+            window.location.href = '/';
+          </script>
+        </head>
+        <body>
+          <p>Loading...</p>
+        </body>
+      </html>
+    `,
+  };
+};
