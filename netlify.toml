@@ -5,7 +5,7 @@
   base = "."
 
 [build.environment]
-  NODE_VERSION = "16"
+  NODE_VERSION = "18"
   NPM_FLAGS = "--legacy-peer-deps"
 
 [[redirects]]
@@ -33,4 +33,4 @@
 [context.production]
   command = "npm run build"
   publish = "dist"
-  environment = { NODE_VERSION = "16" }
+  environment = { NODE_VERSION = "18" }
